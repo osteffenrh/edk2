@@ -1,0 +1,79 @@
+#!/bin/bash
+set -e -C
+
+# The edk2 pathname, under CryptoPkg, where the prepped sources will be needed.
+EDK2_SSL_LIB=CryptoPkg/Library/OpensslLib
+
+# The pathname of our submodule of RHEL's OpenSSL dist-git repo.
+RHEL_SSL_MOD_DIR=.distro/openssl-rhel
+
+# The pathname of our cached tarballs of the prepped OpenSSL sources.
+RHEL_SSL_TARBALL_CACHE=.distro/openssl-rhel-cache
+
+# The filename of the most recently extracted and/or created cached tarball
+# will be saved in this file.
+RHEL_SSL_TARBALL_LOC=.distro/openssl-rhel.tarball
+
+# The distro release that we'll pass to "rhpkg" with "--release". This needs to
+# be set explicitly for the following reasons:
+#
+# - During development, this value may lag behind the distro release that we're
+#   building edk2 for.
+#
+# - The submodule is generally in a "detached HEAD" state, at the commit
+#   required by the superproject. Getting a unique symbolic ref (for "rhpkg
+#   --release") cannot be guaranteed, as the commit at which the submodule HEAD
+#   is detached could be contained by multiple remote branches, if the dist-git
+#   history is suitably forked. (Technically, "git branch -r --contains HEAD"
+#   could return multiple branch names.)
+RHEL_SSL_RELEASE=rhel-8.4.0
+
+export WORKSPACE=$(git rev-parse --show-toplevel)
+set -u
+cd "$WORKSPACE"
+
+# Update the dist-git clone.
+git submodule sync
+git submodule update --init --force -- "$RHEL_SSL_MOD_DIR"
+
+# Check if we have a cached tarball for the submodule commit.
+RHEL_SSL_MOD_STATUS=( $(git submodule status -- "$RHEL_SSL_MOD_DIR") )
+RHEL_SSL_TARBALL=openssl-rhel-${RHEL_SSL_MOD_STATUS[0]}.tar.xz
+
+# If we do, extract it and exit.
+if test -f "$RHEL_SSL_TARBALL_CACHE/$RHEL_SSL_TARBALL"; then
+  rm -f -r -- "$EDK2_SSL_LIB/openssl"
+  tar -C "$EDK2_SSL_LIB" -a \
+    -f "$RHEL_SSL_TARBALL_CACHE/$RHEL_SSL_TARBALL" -x
+  printf -- '%s\n' "$RHEL_SSL_TARBALL" >| "$RHEL_SSL_TARBALL_LOC"
+  exit 0
+fi
+
+# Enter the submodule.
+pushd -- "$RHEL_SSL_MOD_DIR"
+
+# Sanity check: HEAD should be contained by RHEL_SSL_RELEASE.
+if ! git branch -r --contains HEAD | fgrep -q "origin/$RHEL_SSL_RELEASE"; then
+  printf '%s: superproject reference is not part of %s\n' \
+    "$RHEL_SSL_MOD_DIR" "$RHEL_SSL_RELEASE" >&2
+  exit 1
+fi
+
+# Create temporary build directory.
+BUILDDIR=$(mktemp -d)
+trap 'rm -f -r -- "$BUILDDIR"' EXIT
+
+# The following command downloads the hobbled OpenSSL tarball, prepares a
+# transient SRPM, and runs the %prep stage.
+rhpkg --release "$RHEL_SSL_RELEASE" prep --builddir "$BUILDDIR"
+
+# Move the prepped sources into the edk2 CryptoPkg package.
+popd
+rm -f -r -- "$EDK2_SSL_LIB/openssl"
+mv -- "$BUILDDIR"/openssl* "$EDK2_SSL_LIB/openssl"
+
+# Cache the prepped sources for later.
+mkdir -p "$RHEL_SSL_TARBALL_CACHE"
+tar -C "$EDK2_SSL_LIB" -c openssl \
+| nice xz -v -T 0 > "$RHEL_SSL_TARBALL_CACHE/$RHEL_SSL_TARBALL"
+printf -- '%s\n' "$RHEL_SSL_TARBALL" >| "$RHEL_SSL_TARBALL_LOC"

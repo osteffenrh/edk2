@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# Produce a sed script on standard output that translates edk2 GUIDs to their
+# textual representations ("names"). Such a sed script (a translator) greatly
+# helps understanding edk2 / OVMF debug logs.
+#
+# Create the translator script:
+# - change to the root directory of your edk2 workspace
+# - build OVMF
+# - run 'edk2-guids >/tmp/edk2.guids'
+#
+# Use the translator script:
+# - run 'sed -f /tmp/edk2.guids .../ovmf.debug.log'
+
+set -e -u -C
+unset LANG || true
+export LC_ALL=POSIX
+
+{
+  # Grep the DEC files for GUID definitions, and remove everything
+  # except the GUID name stem and the GUID bytes.
+  git grep -h -E '^ *g[A-Za-z0-9_]+Guid *= *\{' -- '*.dec' \
+  | dos2unix \
+  | sed -r \
+        -e 's/^ *g([A-Za-z0-9_]+)Guid /\1 /' \
+        -e 's/[={},]/ /g' \
+        -e 's/ +$//' \
+  | while read -a INPUT; do
+      if [ ${#INPUT[@]} -ne 12 ]; then
+        printf 'failed to parse GUID from DEC\n' >&2
+        exit 1
+      fi
+      NAME=${INPUT[0]}
+      unset INPUT[0]
+      printf 's:%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X:[%s]:ig\n' \
+          "${INPUT[@]}" "$NAME"
+    done
+
+  # Take module and tool GUIDs from the build output.
+  {
+    find Build -name Guid.xref \
+    | xargs -r cat \
+    | dos2unix
+
+    find Build -name GuidedSectionTools.txt \
+    | xargs -r cat \
+    | dos2unix \
+    | cut -f 1-2 -d ' '
+  } \
+  | sed -r -n 's/^(.{36}) (.*)$/s:\1:[\2]:ig/p'
+
+  # Search all .inf files.
+  git grep -E -H '^ *\<(BASE_NAME|FILE_GUID)\> *=' -- '*.inf' \
+  | dos2unix \
+  | sort \
+  | {
+      FILE_PREV=
+      MACRO_PREV=
+      VALUE_PREV=
+      while read FILE MACRO EQ VALUE COMMENTS; do
+        if [ x"$FILE_PREV" = x"$FILE" ] \
+            && [ BASE_NAME = "$MACRO_PREV" ] \
+            && [ FILE_GUID = "$MACRO" ]; then
+          printf 's:%s:[%s]:ig\n' "$VALUE" "$VALUE_PREV"
+        fi
+        FILE_PREV=$FILE
+        MACRO_PREV=$MACRO
+        VALUE_PREV=$VALUE
+      done
+    }
+
+  # Some well-known GUIDs that used not to be available from the above
+  # sources.
+  printf 's:%s:[%s]:ig\n' \
+      1810AB4A-2314-4DF6-81EB-67C6EC058591 BootScriptHeaderData \
+      605DAB50-E046-4300-ABB6-3DD810DD8B23 ShimLock_MokOwner \
+      9A8D3433-9FE8-42B6-870B-1E31C84EBE3B BootScriptExecutorImage \
+      AEA6B965-DCF5-4311-B4B8-0F12464494D2 BootScriptData \
+      B5AF1D7A-B8CF-4EB3-8925-A820E16B687D BootScriptDataOrg \
+      DEA652B0-D587-4C54-B5B4-C682E7A0AA3D AcpiS3IdtrProfile
+
+  # We'll eliminate duplicates below. The above generation order means priority
+  # order too.
+} \
+| sort -f -u -t : -k 2,2 --stable

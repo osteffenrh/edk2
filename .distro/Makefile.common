@@ -1,0 +1,43 @@
+UNAME:=edk2
+NAME:=edk2
+RHEV:=0
+VERSION:=
+DATE:=20220126
+COMMIT:=bb1bba3d77
+RELEASE:=1
+ZRELEASE:=
+RELEASE_SEPARATOR:=-
+
+TARFILE:=edk2-$(COMMIT).tar.xz
+TARSHA512:=3e0deb750d3443f4a2c15a066842e35a05a6dc65ce1869c229a8328d3dba8375949ee3825e16c7fe01bd77516a6717ccbdda1d674a2a862453e5480094c49c4c
+TARURL:=https://pkgs.devel.redhat.com/repo/rpms/edk2/$(TARFILE)/sha512/$(TARSHA512)/$(TARFILE)
+MARKER:=bb1bba3d776733c41dbfa2d1dc0fe234819a79f2
+
+SPECFILE:=$(NAME).spec
+DIST:=.el9
+BUILD_TARGET:=rhel-9.0.0-candidate
+
+ifeq ($(RHEV),1)
+  NAME_SUFFIX:=-rhev
+endif
+
+ifneq ($(VERSION),)
+  BUILD_DIR:=$(UNAME)-$(VERSION)
+  SRPM_NAME:=$(NAME)$(NAME_SUFFIX)-$(VERSION)$(RELEASE_SEPARATOR)$(RELEASE)$(DIST)
+else
+  BUILD_DIR:=$(UNAME)-$(GITCOMMIT)
+  SRPM_NAME:=$(NAME)$(NAME_SUFFIX)-$(DATE)git$(COMMIT)-$(RELEASE)$(DIST)
+endif
+
+ifneq ($(ZRELEASE),)
+  SRPM_NAME:=$(SRPM_NAME).$(ZRELEASE)
+endif
+
+SOURCES_FILELIST:=ovmf-whitepaper-c770f8c.txt \
+  RedHatSecureBootPkKek1.pem \
+  metafiles/edk2-aarch64-verbose.json \
+  metafiles/edk2-aarch64.json \
+  metafiles/edk2-ovmf-cc.json \
+  metafiles/edk2-ovmf-sb.json \
+  metafiles/edk2-ovmf.json
+

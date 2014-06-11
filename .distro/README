@@ -1,0 +1,236 @@
+Notes about the repository
+--------------------------
+
+Source code in the edk2 tree uses CRLF line endings. When editing files, please
+use a text editor that recognizes and sticks with CRLFs. When creating new
+source files, make sure your editor writes them out with CRLF line terminators.
+
+In addition, please run the following commands in your clone:
+
+  git config core.whitespace cr-at-eol
+  git config am.keepcr true
+
+Please do not set "core.autocrlf".
+
+Producing helpful hunk headers for INI-like files
+-------------------------------------------------
+
+A number of "control" files in edk2 use the sectioned INI style (*.dsc, *.fdf,
+*.inf, *.dec, etc). It helps reviewers greatly if the diff hunks that are
+formatted for such files identify the sections that they modify.
+
+Please refer to the following thread for more details:
+<http://thread.gmane.org/gmane.comp.bios.tianocore.devel/15486>, and run the
+following command in your clone:
+
+  git config diff.ini.xfuncname '^\[[A-Za-z0-9_., ]+]'
+
+
+Build instructions (OVMF, x86_64 build hosts)
+---------------------------------------------
+
+1. Set up your session:
+
+  source edksetup.sh
+
+You only need to do this once per interactive shell.
+
+2. Ready the build tools:
+
+  nice make -C "$EDK_TOOLS_PATH" -j $(getconf _NPROCESSORS_ONLN)
+
+You only need to do this once per "git clean -fdx".
+
+3. Write code.
+
+4a. Build the tree (SB-less and SMM-less, usable in SEV-ES guests):
+
+  redhat/scripts/openssl-update
+  nice build \
+    --hash \
+    --cmd-len=65536 \
+    -n $(getconf _NPROCESSORS_ONLN) \
+    -a X64 \
+    -p OvmfPkg/OvmfPkgX64.dsc \
+    -t GCC5 \
+    -b DEBUG \
+    -D NETWORK_IP6_ENABLE \
+    -D NETWORK_HTTP_BOOT_ENABLE \
+    -D NETWORK_TLS_ENABLE \
+    -D TPM_ENABLE \
+    -D TPM2_ENABLE \
+    -D PVSCSI_ENABLE=FALSE \
+    -D MPT_SCSI_ENABLE=FALSE \
+    -D FD_SIZE_4MB
+
+4b. Build the tree (SB and SMM, shipped):
+
+  redhat/scripts/openssl-update
+  nice build \
+    --hash \
+    --cmd-len=65536 \
+    -D SECURE_BOOT_ENABLE \
+    -n $(getconf _NPROCESSORS_ONLN) \
+    -a IA32 -a X64 \
+    -p OvmfPkg/OvmfPkgIa32X64.dsc \
+    -t GCC5 \
+    -b DEBUG \
+    -D NETWORK_IP6_ENABLE \
+    -D NETWORK_HTTP_BOOT_ENABLE \
+    -D NETWORK_TLS_ENABLE \
+    -D SMM_REQUIRE \
+    -D TPM_ENABLE \
+    -D TPM2_ENABLE \
+    -D PVSCSI_ENABLE=FALSE \
+    -D MPT_SCSI_ENABLE=FALSE \
+    -D FD_SIZE_4MB
+
+5a. The output files are (SMM-less):
+
+- Build/OvmfX64/DEBUG_GCC5/FV/OVMF_VARS.fd
+
+  An empty, pristine variable store. Each VM needs a separate variable store.
+  Copy this file for each new VM, or if you want to empty a VM's variable
+  store.
+
+- Build/OvmfX64/DEBUG_GCC5/FV/OVMF_CODE.fd
+
+  Read-only flash image with executable code. VMs share this image.
+
+5b. The output files are (SMM):
+
+- Build/Ovmf3264/DEBUG_GCC5/FV/OVMF_VARS.fd
+
+  Contents are identical to "OVMF_VARS.fd" mentioned in step 5a.
+
+- Build/Ovmf3264/DEBUG_GCC5/FV/OVMF_CODE.fd
+
+  Firmware binary that enables and requires SMM support.
+
+6a. Useful command line options for testing (SMM-less):
+
+  /usr/libexec/qemu-kvm ... \
+    -drive if=pflash,format=raw,readonly,file=OVMF_CODE.fd \
+    -drive if=pflash,format=raw,file=VMs-copy-of-OVMF_VARS.fd \
+    -debugcon file:ovmf.debug.log \
+    -global isa-debugcon.iobase=0x402
+
+6b. Useful command line options for testing (SMM):
+
+  /usr/libexec/qemu-kvm ... \
+    -drive if=pflash,format=raw,readonly,file=OVMF_CODE.fd \
+    -drive if=pflash,format=raw,file=VMs-copy-of-OVMF_VARS.fd \
+    -debugcon file:ovmf.debug.log \
+    -global isa-debugcon.iobase=0x402 \
+    -machine q35,smm=on,accel=kvm \
+    -global driver=cfi.pflash01,property=secure,value=on
+
+7. It's easier to analyze "ovmf.debug.log" if GUIDs are translated to names;
+see "redhat/scripts/edk2-guids".
+
+8. Goto 3.
+
+
+Build & test instructions (AAVMF, AARCH64 build hosts -- not cross-compiling)
+-----------------------------------------------------------------------------
+
+1. Set up your session:
+
+  source edksetup.sh
+
+You only need to do this once per interactive shell.
+
+2. Ready the build tools:
+
+  nice make -C "$EDK_TOOLS_PATH" -j $(getconf _NPROCESSORS_ONLN)
+
+You only need to do this once per "git clean -fdx".
+
+3. Write code.
+
+4. Build the tree:
+
+  redhat/scripts/openssl-update
+  nice build -n $(getconf _NPROCESSORS_ONLN) -a AARCH64 \
+    -p ArmVirtPkg/ArmVirtQemu.dsc \
+    -t GCC5 \
+    -b DEBUG \
+    -D NETWORK_IP6_ENABLE \
+    -D NETWORK_HTTP_BOOT_ENABLE \
+    -D NETWORK_TLS_ENABLE \
+    -D TPM_ENABLE \
+    -D TPM2_ENABLE \
+    -D DEBUG_PRINT_ERROR_LEVEL=0x8040004F \
+    --hash \
+    --cmd-len=65536
+
+5. The output file is:
+
+- Build/ArmVirtQemu-AARCH64/DEBUG_GCC5/FV/QEMU_EFI.fd
+
+  Read-only flash image with executable code.
+
+6. Useful command line options for testing:
+
+  # recreate first flash drive from most recent firmware build
+  cat .../QEMU_EFI.fd /dev/zero \
+  | head -c $((64 * 1024 * 1024)) >| flash0.img
+
+  # create second flash drive (varstore) if it doesn't exist
+  if ! [ -e flash1.img ]; then
+    cat .../QEMU_VARS.fd /dev/zero \
+    | head -c $((64 * 1024 * 1024)) > flash1.img
+  fi
+
+  $QEMU_BINARY ... \
+    -nodefaults \
+    -nodefconfig \
+    -nographic \
+    \
+    -m 2048 \
+    -cpu host -enable-kvm \
+    -M virt\
+    \
+    -drive if=pflash,format=raw,file=flash0.img,readonly \
+    -drive if=pflash,format=raw,file=flash1.img \
+    \
+    -chardev stdio,signal=off,mux=on,id=char0 \
+    -mon chardev=char0,mode=readline,default \
+    -serial chardev:char0 \
+
+The sequence "Ctrl-A Ctrl-C" switches between the serial console of the guest
+and the QEMU monitor.
+
+7. It's easier to analyze the edk2 debug log if GUIDs are translated to names;
+see "redhat/scripts/edk2-guids".
+
+8. Goto 3.
+
+
+Build & test instructions (AAVMF, x86_64 build hosts -- cross-compiling)
+------------------------------------------------------------------------
+
+Only differences relative to the previous section are named.
+
+0. Build qemu for the aarch64-softmmu target. Then install binutils-aarch64 and
+gcc-aarch64.
+
+4. Build the tree:
+
+  redhat/scripts/openssl-update
+  export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-
+  nice build -n $(getconf _NPROCESSORS_ONLN) -a AARCH64 \
+    -p ArmVirtPkg/ArmVirtQemu.dsc \
+    -t GCC5 \
+    -b DEBUG \
+    -D NETWORK_IP6_ENABLE \
+    -D NETWORK_HTTP_BOOT_ENABLE \
+    -D NETWORK_TLS_ENABLE \
+    -D TPM_ENABLE \
+    -D TPM2_ENABLE \
+    -D DEBUG_PRINT_ERROR_LEVEL=0x8040004F \
+    --hash \
+    --cmd-len=65536
+
+6. Useful command line options for testing -- replace "-cpu host -enable-kvm"
+with "-cpu cortex-a57".
