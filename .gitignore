@@ -3,5 +3,5 @@ Build/
 *_extdep/
 *.pyc
 __pycache__/
-tags/
+tags
 .vscode/
