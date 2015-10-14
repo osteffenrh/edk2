@@ -67,4 +67,6 @@
   gArmPlatformTokenSpaceGuid.PcdCPUCorePrimaryStackSize
   gArmPlatformTokenSpaceGuid.PcdCPUCoreSecondaryStackSize
 
+  gArmPlatformTokenSpaceGuid.PcdEarlyHelloMessage
+
   gEfiMdeModulePkgTokenSpaceGuid.PcdInitValueInTempStack
