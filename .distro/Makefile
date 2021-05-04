@@ -37,7 +37,7 @@ else
   LOCALVERSION:=
 endif
 
-.PHONY: rh-brew rh-srpm rh-prep rh-help rh-clean-sources rh-rhel-koji
+.PHONY: rh-rhel-koji rh-centos-koji rh-srpm rh-prep rh-help rh-clean-sources
 all: rh-help
 
 rh-brew: rh-rhel-koji
@@ -102,9 +102,15 @@ rh-rhel-koji: rh-srpm
 	$(DS)brew build $(BREW_OPTIONS) $(BUILD_TARGET) \
 		$(RPMBUILD)/SRPMS/$(SRPM_NAME)$(LOCALVERSION).src.rpm
 
+rh-centos-koji: rh-srpm
+	@echo "Build $(SRPM_NAME)$(LOCALVERSION).src.rpm as $(BUILD_TARGET_C9S)"
+	$(DS)koji --profile=stream build $(BREW_OPTIONS)  $(BUILD_TARGET_C9S) \
+		$(RPMBUILD)/SRPMS/$(SRPM_NAME)$(LOCALVERSION).src.rpm
+
 rh-help:
-	@echo "rh-rhel-koji: Build package on brew"
-	@echo "rh-srpm:      Prepare srpm package"
-	@echo "rh-prep:      Prepare sources and spec file in rpmbuild/"
-	@echo "rh-help:      Print this help"
+	@echo "rh-rhel-koji:   Build package using RHEL 9 koji"
+	@echo "rh-centos-koji: Build package using CentOS 9 Streams koji"
+	@echo "rh-srpm:        Prepare srpm package"
+	@echo "rh-prep:        Prepare sources and spec file in rpmbuild/"
+	@echo "rh-help:        Print this help"
 
