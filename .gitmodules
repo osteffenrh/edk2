@@ -1,7 +1,7 @@
 [submodule "openssl-rhel"]
 	path = .distro/openssl-rhel
 	url = git://pkgs.devel.redhat.com/rpms/openssl
-	branch = rhel-8.4.0
+	branch = rhel-8.5.0
 [submodule "qemu-ovmf-secureboot"]
 	path = .distro/qemu-ovmf-secureboot
 	url = https://github.com/puiterwijk/qemu-ovmf-secureboot.git

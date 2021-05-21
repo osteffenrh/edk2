@@ -3,7 +3,7 @@ ExclusiveArch: x86_64 aarch64
 %define GITDATE        %%DATE%%
 %define GITCOMMIT      %%COMMIT%%
 %define TOOLCHAIN      GCC5
-%define OPENSSL_VER    1.1.1g
+%define OPENSSL_VER    1.1.1k
 
 %define qosb_testing 0
 %ifarch x86_64

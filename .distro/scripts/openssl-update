@@ -26,7 +26,7 @@ RHEL_SSL_TARBALL_LOC=.distro/openssl-rhel.tarball
 #   is detached could be contained by multiple remote branches, if the dist-git
 #   history is suitably forked. (Technically, "git branch -r --contains HEAD"
 #   could return multiple branch names.)
-RHEL_SSL_RELEASE=rhel-8.4.0
+RHEL_SSL_RELEASE=rhel-8.5.0
 
 export WORKSPACE=$(git rev-parse --show-toplevel)
 set -u
