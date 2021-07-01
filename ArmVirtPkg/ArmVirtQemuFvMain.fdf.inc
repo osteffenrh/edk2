@@ -98,7 +98,6 @@ READ_LOCK_STATUS   = TRUE
   INF OvmfPkg/VirtioRngDxe/VirtioRng.inf
 
   INF ShellPkg/Application/Shell/Shell.inf
-  INF OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
 
   #
   # Bds

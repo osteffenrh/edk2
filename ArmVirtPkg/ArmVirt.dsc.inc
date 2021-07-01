@@ -380,10 +380,6 @@
   #
   # UEFI application (Shell Embedded Boot Loader)
   #
-  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf {
-    <PcdsFixedAtBuild>
-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
-  }
   ShellPkg/Application/Shell/Shell.inf {
     <LibraryClasses>
       ShellCommandLib|ShellPkg/Library/UefiShellCommandLib/UefiShellCommandLib.inf
