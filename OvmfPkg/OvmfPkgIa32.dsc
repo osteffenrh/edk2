@@ -910,10 +910,6 @@
 !endif
 
 !if $(TOOL_CHAIN_TAG) != "XCODE5"
-  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf {
-    <PcdsFixedAtBuild>
-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
-  }
   ShellPkg/DynamicCommand/HttpDynamicCommand/HttpDynamicCommand.inf {
     <PcdsFixedAtBuild>
       gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
