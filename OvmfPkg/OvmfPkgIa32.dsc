@@ -910,10 +910,6 @@
 !endif
 
 !if $(TOOL_CHAIN_TAG) != "XCODE5"
-  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf {
-    <PcdsFixedAtBuild>
-      gEfiShellPkgTokenSpaceGuid.PcdShellLibAutoInitialize|FALSE
-  }
 !endif
   ShellPkg/Application/Shell/Shell.inf {
     <LibraryClasses>

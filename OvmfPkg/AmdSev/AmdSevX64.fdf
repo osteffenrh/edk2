@@ -274,7 +274,6 @@ INF  MdeModulePkg/Universal/Acpi/BootGraphicsResourceTableDxe/BootGraphicsResour
 INF  FatPkg/EnhancedFatDxe/Fat.inf
 
 !if $(TOOL_CHAIN_TAG) != "XCODE5" && $(BUILD_SHELL) == TRUE
-INF  OvmfPkg/LinuxInitrdDynamicShellCommand/LinuxInitrdDynamicShellCommand.inf
 !endif
 INF OvmfPkg/AmdSev/SecretDxe/SecretDxe.inf
 INF  OvmfPkg/AmdSev/Grub/Grub.inf
