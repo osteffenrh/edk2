@@ -759,7 +759,6 @@
     <PcdsFixedAtBuild>
       gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
   }
-  OvmfPkg/VirtioGpuDxe/VirtioGpu.inf
 
   #
   # ISA Support
