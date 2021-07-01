@@ -765,7 +765,6 @@
 !endif
   }
 
-  MdeModulePkg/Universal/EbcDxe/EbcDxe.inf
   OvmfPkg/8259InterruptControllerDxe/8259.inf
   UefiCpuPkg/CpuIo2Dxe/CpuIo2Dxe.inf
   UefiCpuPkg/CpuDxe/CpuDxe.inf
