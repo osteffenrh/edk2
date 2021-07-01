@@ -426,7 +426,6 @@
   MdeModulePkg/Universal/Disk/PartitionDxe/PartitionDxe.inf
   MdeModulePkg/Universal/Disk/UnicodeCollation/EnglishDxe/EnglishDxe.inf
   FatPkg/EnhancedFatDxe/Fat.inf
-  MdeModulePkg/Universal/Disk/UdfDxe/UdfDxe.inf
 
   #
   # Bds
