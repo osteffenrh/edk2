@@ -864,10 +864,6 @@
       gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
   }
 !endif
-  OvmfPkg/QemuRamfbDxe/QemuRamfbDxe.inf {
-    <PcdsFixedAtBuild>
-      gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
-  }
 
   #
   # ISA Support
