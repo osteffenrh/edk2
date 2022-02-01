@@ -485,6 +485,102 @@ KERNEL_IMG=$(rpm -q -l $KERNEL_PKG | egrep '^/lib/modules/[^/]+/vmlinuz$')
 
 
 %changelog
+* Tue Feb 01 2022 Miroslav Rezanina <mrezanin@redhat.com> - 20220126gitbb1bba3d77-1
+- Rebase to latest upstream release [bz#2018388]
+- Resolves: bz#2018388
+  ([rebase] update edk2 to nov '21 release (edk2-stable202111xx))
+
+* Fri Jan 14 2022 Miroslav Rezanina <mrezanin@redhat.com> - 20210527gite1999b264f1f-8
+- edk2-Revert-advertise-OpenSSL-on-TianoCore-splash-screen-.patch [bz#2027286]
+- Resolves: bz#2027286
+  (Remove the customized boot splash logo patch)
+
+* Mon Nov 01 2021 Miroslav Rezanina <mrezanin@redhat.com> - 20210527gite1999b264f1f-7
+- edk2-fix-tpm-build-options.patch [bz#2000396]
+- Resolves: bz#2000396
+  ([aarch64][RHEL9] The lack of TPMFinalLog in efi causes the tpm self-test in the guest to fail)
+
+* Mon Aug 09 2021 Mohan Boddu <mboddu@redhat.com> - 20210527gite1999b264f1f-6
+- Rebuilt for IMA sigs, glibc 2.34, aarch64 flags
+  Related: rhbz#1991688
+
+* Fri Aug 06 2021 Miroslav Rezanina <mrezanin@redhat.com> - 20210527gite1999b264f1f-5
+- edk2-MdeModulePkg-PartitionDxe-Ignore-PMBR-BootIndicator-.patch [bz#1988760]
+- Resolves: bz#1988760
+  (edk2 does not ignore PMBR protective record BootIndicator as required by UEFI spec)
+
+* Fri Jul 30 2021 Miroslav Rezanina <mrezanin@redhat.com> - 20210527gite1999b264f1f-4
+- edk2-spec-remove-Group-and-defattr.patch [bz#1983789]
+- edk2-spec-Add-BuildRequires-make.patch [bz#1983789]
+- edk2-spec-don-t-conditionalize-package-definitions.patch [bz#1983789]
+- edk2-spec-Use-autosetup-with-our-required-git-config-opti.patch [bz#1983789]
+- edk2-spec-Replace-ifarch-else-conditionals-with-build_XXX.patch [bz#1983789]
+- edk2-spec-Move-D-TPM_ENABLE-to-common-CC_FLAGS.patch [bz#1983789]
+- edk2-spec-Add-qemu_package-and-qemu_binary.patch [bz#1983789]
+- edk2-spec-Remove-extra-true-at-end-of-check.patch [bz#1983789]
+- edk2-spec-Move-check-to-between-install-and-files.patch [bz#1983789]
+- edk2-spec-Add-qosb_testing-macro.patch [bz#1983789]
+- edk2-spec-Split-out-build_iso-function.patch [bz#1983789]
+- edk2-spec-Replace-RPM_BUILD_ROOT-with-buildroot.patch [bz#1983789]
+- edk2-spec-Use-make_build-macro.patch [bz#1983789]
+- edk2-spec-Factor-out-OVMF_FLAGS-and-OVMF_SB_FLAGS.patch [bz#1983789]
+- edk2-spec-Don-t-put-build-output-in-the-top-directory.patch [bz#1983789]
+- edk2-spec-Centralize-non-firmware-install-files-at-the-to.patch [bz#1983789]
+- Resolves: bz#1983789
+  (Make spec easier to share with Fedora)
+
+* Mon Jul 12 2021 Miroslav Rezanina <mrezanin@redhat.com> - 20210527gite1999b264f1f-3
+- edk2-OvmfPkg-Remove-PrintDxe-RHEL-only.patch [bz#1967747]
+- edk2-OvmfPkg-Remove-EbcDxe-RHEL-only.patch [bz#1967747]
+- edk2-ArmVirtPkg-Remove-EbcDxe-RHEL-only.patch [bz#1967747]
+- edk2-OvmfPkg-Remove-VirtioGpu-device-driver-RHEL-only.patch [bz#1967747]
+- edk2-OvmfPkg-Remove-QemuRamfbDxe-display-device-driver-RH.patch [bz#1967747]
+- edk2-ArmVirtPkg-Remove-QemuRamfbDxe-display-device-driver.patch [bz#1967747]
+- edk2-OvmfPkg-Remove-NvmExpressDxe-device-driver-RHEL-only.patch [bz#1967747]
+- edk2-ArmVirtPkg-Remove-NvmExpressDxe-device-driver-RHEL-o.patch [bz#1967747]
+- edk2-OvmfPkg-Remove-VirtioFsDxe-filesystem-driver-RHEL-on.patch [bz#1967747]
+- edk2-ArmVirtPkg-Remove-VirtioFsDxe-filesystem-driver-RHEL.patch [bz#1967747]
+- edk2-OvmfPkg-Remove-UdfDxe-filesystem-driver-RHEL-only.patch [bz#1967747]
+- edk2-ArmVirtPkg-Remove-UdfDxe-filesystem-driver-RHEL-only.patch [bz#1967747]
+- edk2-OvmfPkg-Remove-TftpDynamicCommand-from-shell-RHEL-on.patch [bz#1967747]
+- edk2-ArmVirtPkg-Remove-TftpDynamicCommand-from-shell-RHEL.patch [bz#1967747]
+- edk2-OvmfPkg-Remove-HttpDynamicCommand-from-shell-RHEL-on.patch [bz#1967747]
+- edk2-ArmVirtPkg-Remove-HttpDynamicCommand-from-shell-RHEL.patch [bz#1967747]
+- edk2-OvmfPkg-Remove-LinuxInitrdDynamicShellCommand-RHEL-o.patch [bz#1967747]
+- edk2-ArmVirtPkg-Remove-LinuxInitrdDynamicShellCommand-RHE.patch [bz#1967747]
+- edk2-OvmfPkg-Remove-Xen-Drivers-RHEL-only.patch [bz#1967747]
+- Resolves: bz#1967747
+  (edk2: review features and drivers shipped in RHEL)
+
+* Fri Jul 02 2021 Miroslav Rezanina <mrezanin@redhat.com> - 20210527gite1999b264f1f-2
+- edk2-NetworkPkg-IScsiDxe-wrap-IScsiCHAP-source-files-to-8.patch [bz#1961100]
+- edk2-NetworkPkg-IScsiDxe-simplify-ISCSI_CHAP_AUTH_DATA.In.patch [bz#1961100]
+- edk2-NetworkPkg-IScsiDxe-clean-up-ISCSI_CHAP_AUTH_DATA.Ou.patch [bz#1961100]
+- edk2-NetworkPkg-IScsiDxe-clean-up-library-class-dependenc.patch [bz#1961100]
+- edk2-NetworkPkg-IScsiDxe-fix-potential-integer-overflow-i.patch [bz#1961100]
+- edk2-NetworkPkg-IScsiDxe-assert-that-IScsiBinToHex-always.patch [bz#1961100]
+- edk2-NetworkPkg-IScsiDxe-reformat-IScsiHexToBin-leading-c.patch [bz#1961100]
+- edk2-NetworkPkg-IScsiDxe-fix-IScsiHexToBin-hex-parsing.patch [bz#1961100]
+- edk2-NetworkPkg-IScsiDxe-fix-IScsiHexToBin-buffer-overflo.patch [bz#1961100]
+- edk2-NetworkPkg-IScsiDxe-check-IScsiHexToBin-return-value.patch [bz#1961100]
+- edk2-redhat-build-UefiShell.iso-with-xorriso-rather-than-.patch [bz#1971840]
+- Resolves: bz#1961100
+  (edk2: remote buffer overflow in IScsiHexToBin function in NetworkPkg/IScsiDxe [rhel-9.0])
+- Resolves: bz#1971840
+  (Please replace genisoimage with xorriso)
+
+* Wed Jun 23 2021 Miroslav Rezanina <mrezanin@redhat.com> - 20210527gite1999b264f1f-1
+- Rebase to edk2-stable202105 [bz#1938254]
+- Sync edk2-MdeModulePkg-LzmaCustomDecompressLib-catch-4GB-uncom.patch from RHEL-8
+- Sync edk2-redhat-add-OVMF-binary-that-will-support-SEV-ES.patch from RHEL-8
+- Resolves: bz#1938254
+  ((edk2-rebase-rhel-9.0) - rebase edk2 to edk2-stable202105 for RHEL-9-Beta)
+
+* Fri Jan 08 2021 Miroslav Rezanina <mrezanin@redhat.com> - 20200602gitca407c7246bf-1.el9
+- Include fixes to build in RHEL 9 environment (bz#1906468)
+- Resolves: bz#1906468
+  ([RHEL9][FTBFS] edk2 FTBFS on Red Hat Enterprise Linux 9.0.0 Alpha)
+
 * Wed May 12 2021 Miroslav Rezanina <mrezanin@redhat.com> - 20200602gitca407c7246bf-5.el8
 - edk2-MdeModulePkg-LzmaCustomDecompressLib-catch-4GB-uncom.patch [bz#1892318]
 - edk2-redhat-add-OVMF-binary-that-will-support-SEV-ES.patch [bz#1956837]
