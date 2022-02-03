@@ -57,8 +57,8 @@ You only need to do this once per "git clean -fdx".
     -D NETWORK_IP6_ENABLE \
     -D NETWORK_HTTP_BOOT_ENABLE \
     -D NETWORK_TLS_ENABLE \
-    -D TPM_ENABLE \
-    -D TPM2_ENABLE \
+    -D TPM2_ENABLE=TRUE \
+    -D TPM1_ENABLE=FALSE \
     -D PVSCSI_ENABLE=FALSE \
     -D MPT_SCSI_ENABLE=FALSE \
     -D FD_SIZE_4MB
@@ -79,8 +79,8 @@ You only need to do this once per "git clean -fdx".
     -D NETWORK_HTTP_BOOT_ENABLE \
     -D NETWORK_TLS_ENABLE \
     -D SMM_REQUIRE \
-    -D TPM_ENABLE \
-    -D TPM2_ENABLE \
+    -D TPM2_ENABLE=TRUE \
+    -D TPM1_ENABLE=FALSE \
     -D PVSCSI_ENABLE=FALSE \
     -D MPT_SCSI_ENABLE=FALSE \
     -D FD_SIZE_4MB
@@ -158,8 +158,8 @@ You only need to do this once per "git clean -fdx".
     -D NETWORK_IP6_ENABLE \
     -D NETWORK_HTTP_BOOT_ENABLE \
     -D NETWORK_TLS_ENABLE \
-    -D TPM_ENABLE \
-    -D TPM2_ENABLE \
+    -D TPM2_ENABLE=TRUE \
+    -D TPM1_ENABLE=FALSE \
     -D DEBUG_PRINT_ERROR_LEVEL=0x8040004F \
     --hash \
     --cmd-len=65536
@@ -226,8 +226,8 @@ gcc-aarch64.
     -D NETWORK_IP6_ENABLE \
     -D NETWORK_HTTP_BOOT_ENABLE \
     -D NETWORK_TLS_ENABLE \
-    -D TPM_ENABLE \
-    -D TPM2_ENABLE \
+    -D TPM2_ENABLE=TRUE \
+    -D TPM1_ENABLE=FALSE \
     -D DEBUG_PRINT_ERROR_LEVEL=0x8040004F \
     --hash \
     --cmd-len=65536
