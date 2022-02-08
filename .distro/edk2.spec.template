@@ -485,6 +485,16 @@ KERNEL_IMG=$(rpm -q -l $KERNEL_PKG | egrep '^/lib/modules/[^/]+/vmlinuz$')
 
 
 %changelog
+* Tue Feb 08 2022 Miroslav Rezanina <mrezanin@redhat.com> - 20220126gitbb1bba3d77-2
+- edk2-OvmfPkg-remove-unused-TPM-options-from-MicrovmX64.ds.patch [bz#1935497]
+- edk2-OvmfPkg-move-tcg-configuration-to-dsc-and-fdf-includ.patch [bz#1935497]
+- edk2-OvmfPkg-drop-TPM_CONFIG_ENABLE.patch [bz#1935497]
+- edk2-OvmfPkg-create-Tcg12ConfigPei.inf.patch [bz#1935497]
+- edk2-OvmfPkg-rework-TPM-configuration.patch [bz#1935497]
+- edk2-spec-adapt-specfile-to-build-option-changes-disable-.patch [bz#1935497]
+- Resolves: bz#1935497
+  (edk2  implements and/or uses the deprecated MD5 and SHA-1 algorithms by default)
+
 * Tue Feb 01 2022 Miroslav Rezanina <mrezanin@redhat.com> - 20220126gitbb1bba3d77-1
 - Rebase to latest upstream release [bz#2018388]
 - Resolves: bz#2018388
@@ -580,14 +590,6 @@ KERNEL_IMG=$(rpm -q -l $KERNEL_PKG | egrep '^/lib/modules/[^/]+/vmlinuz$')
 - Include fixes to build in RHEL 9 environment (bz#1906468)
 - Resolves: bz#1906468
   ([RHEL9][FTBFS] edk2 FTBFS on Red Hat Enterprise Linux 9.0.0 Alpha)
-
-* Wed May 12 2021 Miroslav Rezanina <mrezanin@redhat.com> - 20200602gitca407c7246bf-5.el8
-- edk2-MdeModulePkg-LzmaCustomDecompressLib-catch-4GB-uncom.patch [bz#1892318]
-- edk2-redhat-add-OVMF-binary-that-will-support-SEV-ES.patch [bz#1956837]
-- Resolves: bz#1892318
-  (edk2: possible heap corruption with LzmaUefiDecompressGetInfo [rhel-8])
-- Resolves: bz#1956837
-  (Additional build of edk2 without SMM (dual build / sub-package) for SEV-ES)
 
 * Mon Nov 23 2020 Miroslav Rezanina <mrezanin@redhat.com> - 20200602gitca407c7246bf-4.el8
 - edk2-OvmfPkg-SmmControl2Dxe-negotiate-ICH9_LPC_SMI_F_CPU_.patch [bz#1849177]
