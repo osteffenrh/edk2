@@ -171,7 +171,7 @@ EfiBootManagerLoadOptionToVariable (
   CHAR16                           OptionName[BM_OPTION_NAME_LEN];
   CHAR16                           *Description;
   CHAR16                           NullChar;
-  EDKII_VARIABLE_LOCK_PROTOCOL     *VariableLock;
+  EDKII_VARIABLE_POLICY_PROTOCOL   *VariablePolicy;
   UINT32                           VariableAttributes;
 
   if ((Option->OptionNumber == LoadOptionNumberUnassigned) ||
@@ -236,11 +236,43 @@ structure.
     //
     // Lock the PlatformRecovery####
     //
-    Status = gBS->LocateProtocol (&gEdkiiVariableLockProtocolGuid, NULL, (VOID **) &VariableLock);
-    if (!EFI_ERROR (Status)) {
-      Status = VariableLock->RequestToLock (VariableLock, OptionName, &gEfiGlobalVariableGuid);
+
+    Status = gBS->LocateProtocol (
+                    &gEdkiiVariablePolicyProtocolGuid,
+                    NULL,
+                    (VOID **)&VariablePolicy
+                    );
+    if (EFI_ERROR (Status)) {
+      DEBUG ((
+        DEBUG_ERROR,
+        "UefiBootManagerLib: "
+        "Could not locate VariablePolicy protocol. Status = %r\n",
+        Status
+        ));
       ASSERT_EFI_ERROR (Status);
     }
+
+    Status = RegisterBasicVariablePolicy (
+               VariablePolicy,
+               &gEfiGlobalVariableGuid,
+               OptionName,
+               VARIABLE_POLICY_NO_MIN_SIZE,
+               VARIABLE_POLICY_NO_MAX_SIZE,
+               VARIABLE_POLICY_NO_MUST_ATTR,
+               VARIABLE_POLICY_NO_CANT_ATTR,
+               VARIABLE_POLICY_TYPE_LOCK_NOW
+               );
+    if (EFI_ERROR (Status)) {
+      DEBUG ((
+        DEBUG_ERROR,
+        "UefiBootManagerLib: Failed to lock variable %g %s. Status = %r\n",
+        &gEfiGlobalVariableGuid,
+        OptionName,
+        Status
+        ));
+      ASSERT_EFI_ERROR (Status);
+    }
+
     VariableAttributes = EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS;
   }
 
