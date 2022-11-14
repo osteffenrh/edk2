@@ -28,7 +28,7 @@ MemoryStateToGhcbOp (
   IN SEV_SNP_PAGE_STATE  State
   )
 {
-  UINTN  Cmd;
+  UINTN  Cmd = 0;
 
   switch (State) {
     case SevSnpPageShared: Cmd = SNP_PAGE_STATE_SHARED;

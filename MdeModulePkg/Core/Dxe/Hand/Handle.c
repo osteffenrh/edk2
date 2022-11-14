@@ -966,7 +966,7 @@ CoreOpenProtocol (
   )
 {
   EFI_STATUS          Status;
-  PROTOCOL_INTERFACE  *Prot;
+  PROTOCOL_INTERFACE  *Prot = NULL;
   LIST_ENTRY          *Link;
   OPEN_PROTOCOL_DATA  *OpenData;
   BOOLEAN             ByDriver;

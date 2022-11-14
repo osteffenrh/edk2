@@ -1958,7 +1958,7 @@ CpuidExit (
   UINT64   Status;
   UINT32   EaxIn;
   UINT32   EcxIn;
-  UINT64   XCr0;
+  UINT64   XCr0 = 0;
   UINT32   Eax;
   UINT32   Ebx;
   UINT32   Ecx;

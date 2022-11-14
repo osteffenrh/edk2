@@ -1371,7 +1371,7 @@ AhciNonDataTransfer (
   IN     ATA_NONBLOCK_TASK       *Task
   )
 {
-  EFI_STATUS             Status;
+  EFI_STATUS             Status = EFI_SUCCESS;
   EFI_AHCI_COMMAND_FIS   CFis;
   EFI_AHCI_COMMAND_LIST  CmdList;
   UINT32                 Retry;

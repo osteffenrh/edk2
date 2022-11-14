@@ -992,7 +992,7 @@ ConvertRtcTimeToEfiTime (
   IN     RTC_REGISTER_B  RegisterB
   )
 {
-  BOOLEAN  IsPM;
+  BOOLEAN  IsPM = FALSE;
   UINT8    Century;
 
   // IsPM only makes sense for 12-hour format.
