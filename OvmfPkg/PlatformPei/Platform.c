@@ -385,7 +385,7 @@ InitializePlatform (
     }
 
     PeiFvInitialization (&mPlatformInfoHob);
-    MemTypeInfoInitialization ();
+    MemTypeInfoInitialization (&mPlatformInfoHob);
     MemMapInitialization (&mPlatformInfoHob);
     NoexecDxeInitialization ();
     UPDATE_BOOLEAN_PCD_FROM_FW_CFG (PcdResizeXterm);
