@@ -369,8 +369,8 @@ InitializePlatform (
 
   if (mPlatformInfoHob.SmmSmramRequire) {
     Q35BoardVerification ();
-    Q35TsegMbytesInitialization ();
-    Q35SmramAtDefaultSmbaseInitialization ();
+    Q35TsegMbytesInitialization (&mPlatformInfoHob);
+    Q35SmramAtDefaultSmbaseInitialization (&mPlatformInfoHob);
   }
 
   PublishPeiMemory ();
