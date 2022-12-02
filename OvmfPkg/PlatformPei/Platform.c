@@ -409,7 +409,7 @@ InitializePlatform (
   }
 
   IntelTdxInitialize ();
-  InstallFeatureControlCallback ();
+  InstallFeatureControlCallback (PlatformInfoHob);
 
   return EFI_SUCCESS;
 }
