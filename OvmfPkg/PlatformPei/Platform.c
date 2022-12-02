@@ -87,16 +87,17 @@ MemMapInitialization (
   ASSERT_RETURN_ERROR (PcdStatus);
 }
 
+STATIC
 VOID
 NoexecDxeInitialization (
-  VOID
+  IN OUT EFI_HOB_PLATFORM_INFO  *PlatformInfoHob
   )
 {
   RETURN_STATUS  Status;
 
-  Status = PlatformNoexecDxeInitialization (&mPlatformInfoHob);
+  Status = PlatformNoexecDxeInitialization (PlatformInfoHob);
   if (!RETURN_ERROR (Status)) {
-    Status = PcdSetBoolS (PcdSetNxForStack, mPlatformInfoHob.PcdSetNxForStack);
+    Status = PcdSetBoolS (PcdSetNxForStack, PlatformInfoHob->PcdSetNxForStack);
     ASSERT_RETURN_ERROR (Status);
   }
 }
@@ -387,7 +388,7 @@ InitializePlatform (
     PeiFvInitialization (&mPlatformInfoHob);
     MemTypeInfoInitialization (&mPlatformInfoHob);
     MemMapInitialization (&mPlatformInfoHob);
-    NoexecDxeInitialization ();
+    NoexecDxeInitialization (&mPlatformInfoHob);
     UPDATE_BOOLEAN_PCD_FROM_FW_CFG (PcdResizeXterm);
   }
 
