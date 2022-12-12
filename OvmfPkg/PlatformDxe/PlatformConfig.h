@@ -50,6 +50,4 @@ PlatformConfigLoad (
 #define PLATFORM_CONFIG_F_GRAPHICS_RESOLUTION  BIT0
 #define PLATFORM_CONFIG_F_DOWNGRADE            BIT63
 
-extern CHAR16  mVariableName[];
-
 #endif // _PLATFORM_CONFIG_H_
