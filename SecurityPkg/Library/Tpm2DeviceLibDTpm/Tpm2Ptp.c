@@ -21,6 +21,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <IndustryStandard/TpmTis.h>
 
 #include "Tpm2DeviceLibDTpm.h"
+#include  "../../../OvmfPkg/Library/ccExitLib/VmgExitSvsm.h"
 
 //
 // Execution of the command may take from several seconds to minutes for certain
@@ -38,6 +39,20 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 // for TPM2.0, Version 1.1, Revision 0.04, Section 7.2.1
 //
 #define RETRY_CNT_MAX  3
+#define SVSM_VTPM_REQUEST  8
+
+STATIC
+UINTN
+SvsmCrbWrite32(
+  IN UINTN  CrbBase,
+  IN UINTN  Addr,
+  IN UINT32 Value
+  )
+{
+  SVSM_CAA  *Caa = SvsmGetCaa ();
+  MmioWrite32 (Addr, Value);
+  return SvsmMsrProtocol (Caa, SVSM_VTPM_REQUEST, 0, 0, (Addr - CrbBase), Value);
+}
 
 /**
   Check whether TPM PTP register exist.
@@ -120,7 +135,7 @@ PtpCrbRequestUseTpm (
     return EFI_NOT_FOUND;
   }
 
-  MmioWrite32 ((UINTN)&CrbReg->LocalityControl, PTP_CRB_LOCALITY_CONTROL_REQUEST_ACCESS);
+  SvsmCrbWrite32 ((UINTN)CrbReg, (UINTN)&CrbReg->LocalityControl, PTP_CRB_LOCALITY_CONTROL_REQUEST_ACCESS);
   Status = PtpCrbWaitRegisterBits (
              &CrbReg->LocalityStatus,
              PTP_CRB_LOCALITY_STATUS_GRANTED,
@@ -202,7 +217,7 @@ PtpCrbTpmCommand (
       if (EFI_ERROR (Status)) {
         RetryCnt++;
         if (RetryCnt < RETRY_CNT_MAX) {
-          MmioWrite32 ((UINTN)&CrbReg->CrbControlRequest, PTP_CRB_CONTROL_AREA_REQUEST_GO_IDLE);
+          SvsmCrbWrite32 ((UINTN)CrbReg, (UINTN)&CrbReg->CrbControlRequest, PTP_CRB_CONTROL_AREA_REQUEST_GO_IDLE);
           continue;
         } else {
           //
@@ -220,7 +235,7 @@ PtpCrbTpmCommand (
     // of 1 by software to Request.cmdReady, as indicated by the Status field
     // being cleared to 0.
     //
-    MmioWrite32 ((UINTN)&CrbReg->CrbControlRequest, PTP_CRB_CONTROL_AREA_REQUEST_COMMAND_READY);
+    SvsmCrbWrite32 ((UINTN)CrbReg, (UINTN)&CrbReg->CrbControlRequest, PTP_CRB_CONTROL_AREA_REQUEST_COMMAND_READY);
     Status = PtpCrbWaitRegisterBits (
                &CrbReg->CrbControlRequest,
                0,
@@ -230,7 +245,7 @@ PtpCrbTpmCommand (
     if (EFI_ERROR (Status)) {
       RetryCnt++;
       if (RetryCnt < RETRY_CNT_MAX) {
-        MmioWrite32 ((UINTN)&CrbReg->CrbControlRequest, PTP_CRB_CONTROL_AREA_REQUEST_GO_IDLE);
+        SvsmCrbWrite32 ((UINTN)CrbReg, (UINTN)&CrbReg->CrbControlRequest, PTP_CRB_CONTROL_AREA_REQUEST_GO_IDLE);
         continue;
       } else {
         Status = EFI_DEVICE_ERROR;
@@ -247,7 +262,7 @@ PtpCrbTpmCommand (
     if (EFI_ERROR (Status)) {
       RetryCnt++;
       if (RetryCnt < RETRY_CNT_MAX) {
-        MmioWrite32 ((UINTN)&CrbReg->CrbControlRequest, PTP_CRB_CONTROL_AREA_REQUEST_GO_IDLE);
+        SvsmCrbWrite32 ((UINTN)CrbReg, (UINTN)&CrbReg->CrbControlRequest, PTP_CRB_CONTROL_AREA_REQUEST_GO_IDLE);
         continue;
       } else {
         Status = EFI_DEVICE_ERROR;
@@ -280,7 +295,7 @@ PtpCrbTpmCommand (
   // Command Execution occurs after receipt of a 1 to Start and the TPM
   // clearing Start to 0.
   //
-  MmioWrite32 ((UINTN)&CrbReg->CrbControlStart, PTP_CRB_CONTROL_START);
+  SvsmCrbWrite32 ((UINTN)CrbReg, (UINTN)&CrbReg->CrbControlStart, PTP_CRB_CONTROL_START);
   Status = PtpCrbWaitRegisterBits (
              &CrbReg->CrbControlStart,
              0,
@@ -292,14 +307,14 @@ PtpCrbTpmCommand (
     // Command Completion check timeout. Cancel the currently executing command by writing TPM_CRB_CTRL_CANCEL,
     // Expect TPM_RC_CANCELLED or successfully completed response.
     //
-    MmioWrite32 ((UINTN)&CrbReg->CrbControlCancel, PTP_CRB_CONTROL_CANCEL);
+    SvsmCrbWrite32 ((UINTN)CrbReg, (UINTN)&CrbReg->CrbControlCancel, PTP_CRB_CONTROL_CANCEL);
     Status = PtpCrbWaitRegisterBits (
                &CrbReg->CrbControlStart,
                0,
                PTP_CRB_CONTROL_START,
                PTP_TIMEOUT_B
                );
-    MmioWrite32 ((UINTN)&CrbReg->CrbControlCancel, 0);
+    SvsmCrbWrite32 ((UINTN)CrbReg, (UINTN)&CrbReg->CrbControlCancel, 0);
 
     if (EFI_ERROR (Status)) {
       //
@@ -379,7 +394,7 @@ GoIdle_Exit:
   //
   //  Return to Idle state by setting TPM_CRB_CTRL_STS_x.Status.goIdle to 1.
   //
-  MmioWrite32 ((UINTN)&CrbReg->CrbControlRequest, PTP_CRB_CONTROL_AREA_REQUEST_GO_IDLE);
+  SvsmCrbWrite32 ((UINTN)CrbReg, (UINTN)&CrbReg->CrbControlRequest, PTP_CRB_CONTROL_AREA_REQUEST_GO_IDLE);
 
   return Status;
 }
