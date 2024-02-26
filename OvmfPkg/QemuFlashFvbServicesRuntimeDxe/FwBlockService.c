@@ -25,6 +25,7 @@
 //
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib.h>
+#include <Library/MemEncryptSevLib.h>
 #include <Library/DebugLib.h>
 #include <Library/DevicePathLib.h>
 #include <Library/DxeServicesTableLib.h>
@@ -978,6 +979,18 @@ FvbInitialize (
   UINTN                       NumOfBlocks;
   RETURN_STATUS               PcdStatus;
 
+  BaseAddress = (UINTN)PcdGet32 (PcdOvmfFdBaseAddress);
+  Length      = PcdGet32 (PcdOvmfFirmwareFdSize);
+
+  if (MemEncryptSevIsEnabled ()) {
+    Status = MemEncryptSevClearMmioPageEncMask (
+               0,
+               BaseAddress,
+               EFI_SIZE_TO_PAGES (Length)
+               );
+    ASSERT_EFI_ERROR (Status);
+  }
+
   if (EFI_ERROR (QemuFlashInitialize ())) {
     //
     // Return an error so image will be unloaded
@@ -995,9 +1008,6 @@ FvbInitialize (
   //
   mFvbModuleGlobal = AllocateRuntimePool (sizeof (ESAL_FWB_GLOBAL));
   ASSERT (mFvbModuleGlobal != NULL);
-
-  BaseAddress = (UINTN)PcdGet32 (PcdOvmfFdBaseAddress);
-  Length      = PcdGet32 (PcdOvmfFirmwareFdSize);
 
   Status = InitializeVariableFvHeader ();
   if (EFI_ERROR (Status)) {
