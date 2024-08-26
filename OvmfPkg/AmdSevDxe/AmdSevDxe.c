@@ -19,6 +19,7 @@
 #include <Library/MemoryAllocationLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Guid/ConfidentialComputingSevSnpBlob.h>
+#include <Guid/GlobalVariable.h>
 #include <Library/PcdLib.h>
 #include <Pi/PrePiDxeCis.h>
 #include <Protocol/SevMemoryAcceptance.h>
@@ -27,6 +28,10 @@
 
 // Present, initialized, tested bits defined in MdeModulePkg/Core/Dxe/DxeMain.h
 #define EFI_MEMORY_INTERNAL_MASK  0x0700000000000000ULL
+
+static EFI_GUID  ShimLockGuid = {
+  0x605dab50, 0xe046, 0x4300, { 0xab, 0xb6, 0x3d, 0xd8, 0x10, 0xdd, 0x8b, 0x23 }
+};
 
 STATIC
 EFI_STATUS
@@ -191,6 +196,32 @@ STATIC EDKII_MEMORY_ACCEPT_PROTOCOL  mMemoryAcceptProtocol = {
   AmdSevMemoryAccept
 };
 
+VOID
+EFIAPI
+PopulateVarstore (
+  EFI_EVENT  Event,
+  VOID       *Context
+  )
+{
+  EFI_SYSTEM_TABLE  *SystemTable = (EFI_SYSTEM_TABLE *)Context;
+  EFI_STATUS        Status;
+
+  DEBUG ((DEBUG_INFO, "Populating Varstore\n"));
+  UINT32  data = 1;
+
+  Status = SystemTable->RuntimeServices->SetVariable (
+                                           L"FB_NO_REBOOT",
+                                           &ShimLockGuid,
+                                           EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_BOOTSERVICE_ACCESS,
+                                           sizeof (data),
+                                           &data
+                                           );
+  ASSERT_EFI_ERROR (Status);
+
+  Status = SystemTable->BootServices->CloseEvent (Event);
+  ASSERT_EFI_ERROR (Status);
+}
+
 EFI_STATUS
 EFIAPI
 AmdSevDxeEntryPoint (
@@ -203,6 +234,7 @@ AmdSevDxeEntryPoint (
   UINTN                                     NumEntries;
   UINTN                                     Index;
   CONFIDENTIAL_COMPUTING_SNP_BLOB_LOCATION  *SnpBootDxeTable;
+  EFI_EVENT                                 PopulateVarstoreEvent;
 
   //
   // Do nothing when SEV is not enabled
@@ -210,6 +242,17 @@ AmdSevDxeEntryPoint (
   if (!MemEncryptSevIsEnabled ()) {
     return EFI_UNSUPPORTED;
   }
+
+  // Workaround for shim fallback reboot
+  Status = gBS->CreateEventEx (
+                  EVT_NOTIFY_SIGNAL,
+                  TPL_CALLBACK,
+                  PopulateVarstore,
+                  SystemTable,
+                  &gEfiEndOfDxeEventGroupGuid,
+                  &PopulateVarstoreEvent
+                  );
+  ASSERT_EFI_ERROR (Status);
 
   //
   // Iterate through the GCD map and clear the C-bit from MMIO and NonExistent
