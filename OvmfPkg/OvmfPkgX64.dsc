@@ -39,7 +39,7 @@
   #
   # Shell can be useful for debugging but should not be enabled for production
   #
-  DEFINE BUILD_SHELL             = TRUE
+  DEFINE BUILD_SHELL             = FALSE
 
   #
   # Network definition
@@ -563,6 +563,8 @@
   # DEBUG_ERROR     0x80000000  // Error
   gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8000004F
 
+  gUefiOvmfPkgTokenSpaceGuid.PcdBootRestrictToFirmware|TRUE
+
 !if $(SOURCE_DEBUG_ENABLE) == TRUE
   gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x17
 !else
@@ -964,6 +966,8 @@
   MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe.inf
   MdeModulePkg/Bus/Usb/UsbKbDxe/UsbKbDxe.inf
   MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+
+  OvmfPkg/AmdSev/Grub/Grub.inf
 
 !include OvmfPkg/Include/Dsc/ShellComponents.dsc.inc
 !include OvmfPkg/Include/Dsc/MorLock.dsc.inc
