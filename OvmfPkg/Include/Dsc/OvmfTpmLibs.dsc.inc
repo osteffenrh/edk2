@@ -30,7 +30,7 @@
 !if $(TPM1_ENABLE) == TRUE
   Tpm12DeviceLib|SecurityPkg/Library/Tpm12DeviceLibDTpm/Tpm12DeviceLibDTpm.inf
 !endif
-  Tpm2DeviceLib|SecurityPkg/Library/Tpm2DeviceLibDTpm/Tpm2DeviceLibDTpm.inf
+  Tpm2DeviceLib|SecurityPkg/Library/Tpm2DeviceLibDTpm/Tpm2DeviceLibDTpmSvsm.inf
 !endif
 
 [LibraryClasses.common.DXE_DRIVER]
