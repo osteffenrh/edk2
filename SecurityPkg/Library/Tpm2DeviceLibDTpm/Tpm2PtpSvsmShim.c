@@ -21,7 +21,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 /// SVSM vTPM presence state as stored in PcdSvsmVTpmPresence
 /// @{
 #define SVSM_VTPM_PRESENCE_UNKNOWN  0xFF
-#define SVSM_VTPM_PRESNET           0x01
+#define SVSM_VTPM_PRESENT           0x01
 #define SVSM_VTPM_ABSENT            0x00
 /// @}
 
@@ -47,14 +47,14 @@ TryUseSvsmVTpm (
   UINT8  SvsmVTpmPresence = (UINT8)PcdGet8 (PcdSvsmVTpmPresence);
 
   if (SvsmVTpmPresence == SVSM_VTPM_PRESENCE_UNKNOWN) {
-    SvsmVTpmPresence = Tpm2SvsmQueryTpmSendCmd () ? SVSM_VTPM_PRESNET : SVSM_VTPM_ABSENT;
+    SvsmVTpmPresence = Tpm2SvsmQueryTpmSendCmd () ? SVSM_VTPM_PRESENT : SVSM_VTPM_ABSENT;
     PcdSet8S (PcdSvsmVTpmPresence, SvsmVTpmPresence);
-    if (SvsmVTpmPresence == SVSM_VTPM_PRESNET) {
+    if (SvsmVTpmPresence == SVSM_VTPM_PRESENT) {
       DEBUG ((DEBUG_INFO, " Found SVSM vTPM\n"));
     }
   }
 
-  mUseSvsmVTpm = SvsmVTpmPresence == SVSM_VTPM_PRESNET;
+  mUseSvsmVTpm = SvsmVTpmPresence == SVSM_VTPM_PRESENT;
   return mUseSvsmVTpm;
 }
 

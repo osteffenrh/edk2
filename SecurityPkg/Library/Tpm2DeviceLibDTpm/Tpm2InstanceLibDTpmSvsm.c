@@ -39,19 +39,26 @@ Tpm2InstanceLibDTpmConstructorSvsm (
   EFI_STATUS  Status;
 
   Status = Tpm2RegisterTpm2DeviceLib (&mDTpm2InternalTpm2Device);
-  if ((Status == EFI_SUCCESS) || (Status == EFI_UNSUPPORTED)) {
+
+  if (Status == EFI_UNSUPPORTED) {
     //
     // Unsupported means platform policy does not need this instance enabled.
     //
-    if (Status == EFI_SUCCESS) {
-      if (!TryUseSvsmVTpm ()) {
-        Status = InternalTpm2DeviceLibDTpmCommonConstructor ();
-        DumpPtpInfo ((VOID *)(UINTN)PcdGet64 (PcdTpmBaseAddress));
-      }
-    }
-
     return EFI_SUCCESS;
   }
+
+  if (Status != EFI_SUCCESS) {
+    return Status;
+  }
+  
+  if (TryUseSvsmVTpm ()) {
+    // SVSM vTPM found.
+    return EFI_SUCCESS;
+  }
+
+  // No SVSM vTPM found; set up regular DTPM Ptp implementation
+  Status = InternalTpm2DeviceLibDTpmCommonConstructor ();
+  DumpPtpInfo ((VOID *)(UINTN)PcdGet64 (PcdTpmBaseAddress));
 
   return Status;
 }
