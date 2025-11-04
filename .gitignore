@@ -6,3 +6,6 @@ __pycache__/
 tags/
 .vscode/
 .venv/
+
+# CI matrix builds
+ci-matrix-builds/

@@ -259,6 +259,121 @@ The Azure Pipeline uses a build matrix to parallelize builds. Here's how package
 **Problem:** Permission denied on scripts
 **Solution:** Run `chmod +x ci-local-*.sh`
 
+## Matrix Build Runner
+
+For running all CI matrix builds at once with progress tracking:
+
+### Using Make (Recommended)
+
+```bash
+# Initial setup (run once)
+make setup
+
+# Run all DEBUG builds
+make ci-debug
+
+# Run all builds (DEBUG, RELEASE, NOOPT)
+make ci-all
+
+# Run only core package builds
+make ci-core
+
+# Run only platform builds
+make ci-platforms
+
+# Check status
+make ci-status
+
+# Retry failed jobs
+make ci-retry
+
+# Clean and start over
+make ci-clean
+```
+
+### Using the Script Directly
+
+```bash
+# Run all DEBUG builds
+./ci-matrix-runner.sh
+
+# Run all targets (DEBUG, RELEASE, NOOPT)
+./ci-matrix-runner.sh --all-targets
+
+# Run only core packages
+./ci-matrix-runner.sh --core-only
+
+# Run only platforms
+./ci-matrix-runner.sh --platforms-only
+
+# Retry failed jobs
+./ci-matrix-runner.sh --retry-failed
+
+# Clean everything
+./ci-matrix-runner.sh --clean
+
+# Run N jobs in parallel (experimental)
+./ci-matrix-runner.sh --jobs 4
+```
+
+### Features
+
+- **Progress Tracking**: Keeps track of which jobs passed/failed
+- **Resume Support**: Rerunning skips successful jobs and can retry failures
+- **Preserved Outputs**: Each job's Build/ directory saved to `ci-matrix-builds/<job-name>/`
+- **Detailed Logs**: Individual log files for each job in `ci-matrix-builds/logs/`
+- **Status Tracking**: Status files in `ci-matrix-builds/status/`
+- **Summary Reports**: Shows overall success/failure counts
+
+### Matrix Jobs (DEBUG mode)
+
+**Core Packages** (from Ubuntu-GCC.yml):
+- ArmPkg, ArmPlatformPkg
+- MdePkg, UefiCpuPkg
+- MdeModulePkg
+- NetworkPkg, RedfishPkg
+- CryptoPkg
+- SecurityPkg
+- FmpDevicePkg, FatPkg, UnitTestFrameworkPkg, DynamicTablesPkg
+- PcAtChipsetPkg, PrmPkg, ShellPkg, SourceLevelDebugPkg, StandaloneMmPkg, SignedCapsulePkg
+- IntelFsp2Pkg, IntelFsp2WrapperPkg
+- UefiPayloadPkg (IA32,X64 and AARCH64)
+- EmbeddedPkg
+
+**OvmfPkg Platforms**:
+- X64, IA32X64
+- FULL (with SecureBoot/SMM/TPM2/Network)
+- MM (StandaloneMM)
+- AMDSEV, BHYVE, CLOUDHV, MICROVM, XEN, INTELTDX
+- RISCV64, LOONGARCH64
+
+**ArmVirtPkg Platforms**:
+- QEMU, QEMU_KERNEL
+- KVMTOOL, CLOUDHV
+
+**EmulatorPkg**:
+- Standard and FULL (with SecureBoot)
+
+### Output Structure
+
+```
+ci-matrix-builds/
+├── status/                          # Job status files
+│   ├── CORE-MdePkg_UefiCpuPkg-DEBUG.status
+│   ├── OVMF-X64-DEBUG.status
+│   └── ...
+├── logs/                            # Build logs
+│   ├── CORE-MdePkg_UefiCpuPkg-DEBUG.log
+│   ├── OVMF-X64-DEBUG.log
+│   └── ...
+├── CORE-MdePkg_UefiCpuPkg-DEBUG/   # Preserved Build/ output
+│   ├── BUILDLOG_*.txt
+│   ├── TestSuites.xml
+│   └── ...
+├── OVMF-X64-DEBUG/
+└── ...
+```
+
 ## Additional Resources
 
 - [EDK2 CI Documentation](.pytool/Readme.md)
